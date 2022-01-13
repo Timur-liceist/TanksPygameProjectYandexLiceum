@@ -58,7 +58,6 @@ while running:
                         time_game = 10 * 60 * 1000
                     start_game(time_game, level_for_start_game)
                 if button_time_10.mouse_on_button(event.pos):
-                    print(1)
                     min_two_pressed = False
                     min_five_pressed = False
                     min_ten_pressed = True

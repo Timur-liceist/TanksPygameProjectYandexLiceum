@@ -18,10 +18,10 @@ def start_game(TIME, level):
     from scripts.board import Board
     from scripts.base import Base
     from scripts.new_hp import BoxWithHp
-
-    podchet_scoreBlue = Score(515, 15, "blue")
-
-    podchet_scoreRed = Score(570, 15, "red")
+    from scripts.text_of_score import Text
+    text_of_score = Text(517, 15, 30, "SCORE")
+    podchet_scoreBlue = Score(515, 50, "blue")
+    podchet_scoreRed = Score(570, 50, "red")
 
 
     def terminate():
@@ -37,7 +37,7 @@ def start_game(TIME, level):
     time_peresaryadky = 800
     pygame.time.set_timer(EVENT_PERESAR_TANK1, time_peresaryadky)
     pygame.time.set_timer(EVENT_PERESAR_TANK2, time_peresaryadky)
-    timer = Timer(515, 100, TIME)
+    timer = Timer(515, 120, TIME)
 
     base1_hp = Hp(500 // 2 - (HP_BASE * 15) // 2, -5, 1, HP_BASE)
     base2_hp = Hp(500 // 2 - (HP_BASE * 15) // 2, 500 - 25, 2, HP_BASE)
@@ -403,6 +403,7 @@ def start_game(TIME, level):
                 i.kill()
             hp_tank2 = Hp(545, 250, 2, HP_TANKS)
             tank2.hp = HP_TANKS
+        text_of_score.render(screen)
         update()
         pygame.display.flip()
         clock.tick(FPS)

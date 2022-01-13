@@ -1,10 +1,12 @@
-n=  int(input())
-name = [0] + list(map(int, input().split()))
-k = 1
-# 5
-# 1 3 4 2 5
-
-# 1 3 3 4
-
-for i in range(1, n):
-    
+n = int(input())
+name = list(map(int, input().split()))
+zimax = max(name[0], name[1])
+pred_max = min(name[0], name[1])
+print(pred_max, end=" ")
+for i in range(2, n):
+    if name[i] >= zimax:
+        pred_max = zimax
+        zimax = name[i]
+    elif name[i] > pred_max:
+        pred_max = name[i]
+    print(pred_max, end=" ")
