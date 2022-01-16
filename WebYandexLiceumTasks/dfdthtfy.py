@@ -1,27 +1,33 @@
-from zipfile import ZipFile
 import os
+import sys
 
+import pygame
+import requests
 
-def human_read_format(size):
-    s = 1024
-    indexes = ["Б", "КБ", "МБ", "ГБ"]
-    index = 0
-    while size >= s:
-        size /= 1024
-        index += 1
-    return f"{round(size)}{indexes[index]}"
+map_request = "http://static-maps.yandex.ru/1.x/?ll=62.186050%2C52.479761&spn=0.005,0.005&l=sat"
+response = requests.get(map_request)
 
+if not response:
+    print("Ошибка выполнения запроса:")
+    print(map_request)
+    print("Http статус:", response.status_code, "(", response.reason, ")")
+    sys.exit(1)
 
-with ZipFile("input.zip") as myzip:
-    for el in myzip.infolist():
-        sp = el.filename.split("/")
-        if sp[-1] == "":
-            sp.remove("")
-        s = ""
-        if el.filename.split("/")[-1] != "":
-            # try:
-            #     s = " " + str(human_read_format(os.path.getsize(sp[-1])))
-            # except Exception:
-            #     pass
-            s = " " + str(human_read_format(os.path.getsize(el.filename)))
-        print("  " * (len(sp) - 1) + sp[-1] + s)
+# Запишем полученное изображение в файл.
+map_file = "map.png"
+with open(map_file, "wb") as file:
+    file.write(response.content)
+
+# Инициализируем pygame
+pygame.init()
+screen = pygame.display.set_mode((600, 450))
+# Рисуем картинку, загружаемую из только что созданного файла.
+screen.blit(pygame.image.load(map_file), (0, 0))
+# Переключаем экран и ждем закрытия окна.
+pygame.display.flip()
+while pygame.event.wait().type != pygame.QUIT:
+    pass
+pygame.quit()
+
+# Удаляем за собой файл с изображением.
+os.remove(map_file)
