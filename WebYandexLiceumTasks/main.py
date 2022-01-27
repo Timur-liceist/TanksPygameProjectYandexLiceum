@@ -1,39 +1,106 @@
-import pygame
-import requests
-from coords_metro import coords_metro_stations
 import os
 import sys
-import math
+import pygame
+import requests
+import pygame_gui
 
+coords = [37.530887, 55.703118]
+mashtab = 0.002
+map_request = f"http://static-maps.yandex.ru/1.x/?ll={coords[0]},{coords[1]}&spn={mashtab},{mashtab}&l=map"
+response = requests.get(map_request)
+if not response:
+    print("Ошибка выполнения запроса:")
+    print(map_request)
+    print("Http статус:", response.status_code, "(", response.reason, ")")
+    sys.exit(1)
+map_file = "map.png"
+with open(map_file, "wb") as file:
+    file.write(response.content)
+pygame.init()
+screen = pygame.display.set_mode((600, 450))
+screen.blit(pygame.image.load(map_file), (0, 0))
+pygame.display.flip()
+run = True
+manager = pygame_gui.UIManager((800, 600))
+step = 0.0005
+upping = False
+downing = False
+lefting = False
+righting = False
+type_map = "Схема"
+clock = pygame.time.Clock()
+combobox = pygame_gui.elements.UIDropDownMenu(manager=manager,
+                                              relative_rect=pygame.Rect((10, 10), (125, 30)),
+                                              options_list=["Гибрид", "Спутник", "Схема"],
+                                              starting_option="Схема")
+dic = {"Гибрид": "sat,skl", "Спутник": "sat", "Схема": "map"}
+while run:
+    time_delta = clock.tick(60) / 1000.0
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+        if event.type == pygame.USEREVENT:
+            if event.user_type == pygame_gui.UI_DROP_DOWN_MENU_CHANGED:
+                if event.ui_element == combobox:
+                    type_map = event.text
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_PAGEUP:
 
-# Определяем функцию, считающую расстояние между двумя точками, заданными координатами
-def lonlat_distance(a, b):
-    degree_to_meters_factor = 111 * 1000  # 111 километров в метрах
-    a_lon, a_lat = a
-    b_lon, b_lat = b
+                print(1)
+                mashtab *= 1.5
+                map_request = f"http://static-maps.yandex.ru/1.x/?ll={coords[0]},{coords[1]}&spn={mashtab},{mashtab}&l={dic[type_map]}"
+                response = requests.get(map_request)
+                if not response:
+                    # mashtab *= 0.01
+                    break
+            if event.key == pygame.K_PAGEDOWN:
+                print(2)
+                mashtab /= 1.5
+                map_request = f"http://static-maps.yandex.ru/1.x/?ll={coords[0]},{coords[1]}&spn={mashtab},{mashtab}&l={dic[type_map]}"
+                response = requests.get(map_request)
+                if not response:
+                    # mashtab += 0.01
+                    mashtab *= 1.5
+                    break
+            if event.key == pygame.K_UP:
+                upping = True
+            if event.key == pygame.K_DOWN:
+                downing = True
+            if event.key == pygame.K_LEFT:
+                lefting = True
+            if event.key == pygame.K_RIGHT:
+                righting = True
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_UP:
+                upping = False
+            if event.key == pygame.K_DOWN:
+                downing = False
+            if event.key == pygame.K_LEFT:
+                lefting = False
+            if event.key == pygame.K_RIGHT:
+                righting = False
 
-    # Берем среднюю по широте точку и считаем коэффициент для нее.
-    radians_lattitude = math.radians((a_lat + b_lat) / 2.)
-    lat_lon_factor = math.cos(radians_lattitude)
+        manager.process_events(event)
 
-    # Вычисляем смещения в метрах по вертикали и горизонтали.
-    dx = abs(a_lon - b_lon) * degree_to_meters_factor * lat_lon_factor
-    dy = abs(a_lat - b_lat) * degree_to_meters_factor
-
-    # Вычисляем расстояние между точками.
-    distance = math.sqrt(dx * dx + dy * dy)
-
-    return distance
-
-
-minn_metro = ""
-minn = 10 ** 9
-name = input()
-result_geocoder = f"http://geocode-maps.yandex.ru/1.x/?apikey=40d1649f-0493-4b70-98ba-98533de7710b&geocode={name}&format=json"
-shirota, dolgota = 1, 1
-for i in coords_metro_stations:
-    a = lonlat_distance((shirota, dolgota), coords_metro_stations[i])
-    if a < minn:
-        minn_metro = i
-        minn = a
-print(minn_metro)
+    manager.update(time_delta)
+    if upping:
+        coords[1] += step * mashtab * 70
+    if lefting:
+        coords[0] -= step * mashtab * 90
+    if righting:
+        coords[0] += step * mashtab * 90
+    if downing:
+        coords[1] -= step * mashtab * 70
+    map_request = f"http://static-maps.yandex.ru/1.x/?ll={coords[0]},{coords[1]}&spn={mashtab},{mashtab}&l={dic[type_map]}"
+    response = requests.get(map_request)
+    if not response:
+        mashtab -= 0.1
+        break
+    map_file = "map.png"
+    with open(map_file, "wb") as file:
+        file.write(response.content)
+    screen.blit(pygame.image.load(map_file), (0, 0))
+    manager.draw_ui(screen)
+    pygame.display.flip()
+pygame.quit()
+os.remove(map_file)

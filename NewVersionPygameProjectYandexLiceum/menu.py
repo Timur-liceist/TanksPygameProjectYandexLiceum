@@ -96,7 +96,6 @@ while running:
             if event.user_type == pygame_gui.UI_DROP_DOWN_MENU_CHANGED:
                 if event.ui_element == combobox:
                     level_for_start_game = event.text
-                    print(level)
         manager.process_events(event)
 
     all_sprites.update()

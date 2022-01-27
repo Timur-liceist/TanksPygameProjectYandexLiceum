@@ -30,11 +30,3 @@ class Board:
 
     def render(self, screen):
         pass
-        # for w in range(self.width):
-        #     for h in range(self.height):
-        #         x = self.left + w * self.cell_size
-        #         y = self.top + h * self.cell_size
-        #         if self.board[h][w] == 0:
-        #             Grass(w * cell_size, h * cell_size)
-        #         if self.board[h][w] == 1:
-        #             Block((w * cell_size, h * cell_size), 1)

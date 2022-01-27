@@ -200,7 +200,6 @@ def start_game(TIME, level):
                 i.kill()
     flag_box_with_hp = True
     while running:
-        print(tank1.hp, tank2.hp)
         if (podchet_scoreBlue.score == 5 or podchet_scoreRed.score == 5 or base1.hp == 0 or base2.hp == 0) and play:
             # if playing_music_of_tank_unichtozhen:
             #     playing_music_of_tank_unichtozhen = False

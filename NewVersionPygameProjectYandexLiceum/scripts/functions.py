@@ -3,6 +3,7 @@ import sys
 import pygame
 import sqlite3
 
+
 def load_level(name):
     con = sqlite3.connect("../data/levels.db")
     cur = con.cursor()
@@ -11,8 +12,10 @@ def load_level(name):
     result = list(map(lambda x: list(map(int, x.split())), result))
     con.close()
     return result
+
+
 def load_image(name, w=None, h=None, colorkey=None):
-    fullname = os.path.join(r'C:\Users\timka\PycharmProjects\ProjectPygameYandexLiceum\data', name)
+    fullname = os.path.join(r'..\data', name)
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
         sys.exit()
